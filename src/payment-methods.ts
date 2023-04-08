@@ -22,6 +22,18 @@ const TEST_CARDS: Record<string, Stripe.PaymentMethod> = {
 		created: DateTime.now().toUnixInteger(),
 		type: 'card',
 	},
+	pm_card_chargeCustomerFail: {
+		//@ts-ignore
+		card: {
+			brand: 'visa',
+			country: 'US',
+			exp_month: DateTime.local().month,
+			exp_year: DateTime.local().plus({ year: 1 }).year,
+			last4: '0341',
+		},
+		created: DateTime.now().toUnixInteger(),
+		type: 'card',
+	},
 };
 
 export class MockPaymentMethodsResource {

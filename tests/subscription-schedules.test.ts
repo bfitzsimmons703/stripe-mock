@@ -7,6 +7,8 @@ describe('Mock Subscription Schedules Resource', () => {
 
 	let customer: Stripe.Customer;
 	let subscription: Stripe.Subscription;
+	let schedule: Stripe.SubscriptionSchedule;
+
 	beforeAll(async () => {
 		customer = await stripe.customers.create();
 		subscription = await stripe.subscriptions.create({
@@ -24,5 +26,23 @@ describe('Mock Subscription Schedules Resource', () => {
 		expect(sched.subscription).toBe(subscription.id);
 
 		expect(sched.phases.length).toBe(1);
+
+		schedule = { ...sched };
+	});
+
+	it('transferring a subscription to a schedule updates the original subscription object', async () => {
+		const updatedSubscription = await stripe.subscriptions.retrieve(
+			subscription.id
+		);
+		expect(updatedSubscription.schedule).toBeTruthy();
+		expect(updatedSubscription.schedule).toBe(schedule.id);
+	});
+
+	it('updates subscription schedules', async () => {
+		const updated = await stripe.subscriptionSchedules.update(schedule.id, {
+			end_behavior: 'cancel',
+		});
+
+		expect(updated.end_behavior).toBe('cancel');
 	});
 });

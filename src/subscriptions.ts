@@ -4,6 +4,7 @@ import { JsonDB } from 'node-json-db';
 import Stripe from 'stripe';
 
 import { stripeUUID } from '@/utils';
+import { SUBSCRIPTION_SCHEDULES_DATA_PATH } from '@/subscription-schedules';
 
 export const SUBSCRIPTIONS_DATA_PATH = '/subscriptions';
 
@@ -45,10 +46,6 @@ export class MockSubscriptionsResource {
 		return { ...sub };
 	}
 
-	async retrieve(id: string): Promise<Stripe.Subscription> {
-		return this.db.getData(`${SUBSCRIPTIONS_DATA_PATH}/${id}`);
-	}
-
 	async update(
 		id: string,
 		params: Stripe.SubscriptionUpdateParams
@@ -64,5 +61,24 @@ export class MockSubscriptionsResource {
 		);
 
 		return this.db.getData(path) as Promise<Stripe.Subscription>;
+	}
+
+	async retrieve(
+		id: string,
+		params?: Stripe.SubscriptionRetrieveParams
+	): Promise<Stripe.Subscription> {
+		const subscription = (await this.db.getData(
+			`${SUBSCRIPTIONS_DATA_PATH}/${id}`
+		)) as Stripe.Subscription;
+
+		if (params?.expand?.includes('schedule') && subscription.schedule) {
+			const schedule = await this.db.getData(
+				`${SUBSCRIPTION_SCHEDULES_DATA_PATH}/${subscription.schedule}`
+			);
+
+			subscription.schedule = schedule;
+		}
+
+		return { ...subscription };
 	}
 }

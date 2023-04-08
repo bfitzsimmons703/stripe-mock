@@ -5,6 +5,7 @@ import Stripe from 'stripe';
 import { JsonDB } from 'node-json-db';
 
 import { stripeUUID } from '@/utils';
+import { SUBSCRIPTIONS_DATA_PATH } from '@/subscriptions';
 
 export const CUSTOMERS_DATA_PATH = '/customers';
 
@@ -73,13 +74,31 @@ export class MockCustomersResource {
 		return this.db.getData(path) as Promise<Stripe.Customer>;
 	}
 
-	/**
-	 * Don't need to worry about Stripe.CustomerRetrieveParams (which has the `expand` option)
-	 * because we'll auto-expand every customer property by default.
-	 */
-	async retrieve(id: string): Promise<Stripe.Customer> {
-		return this.db.getData(
+	async retrieve(
+		id: string,
+		params?: Stripe.CustomerRetrieveParams
+	): Promise<Stripe.Customer> {
+		const customer = (await this.db.getData(
 			`${CUSTOMERS_DATA_PATH}/${id}`
-		) as Promise<Stripe.Customer>;
+		)) as Stripe.Customer;
+
+		if (params?.expand?.includes('subscriptions')) {
+			const subscriptions: Stripe.Subscription[] =
+				(await this.db.filter(
+					SUBSCRIPTIONS_DATA_PATH,
+					(entry: Partial<Stripe.Subscription>) => {
+						return entry.customer === id;
+					}
+				)) || [];
+
+			customer.subscriptions = {
+				object: 'list',
+				has_more: false,
+				data: subscriptions,
+				url: '',
+			};
+		}
+
+		return customer;
 	}
 }

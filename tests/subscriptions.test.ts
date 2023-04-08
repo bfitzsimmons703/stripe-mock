@@ -23,6 +23,18 @@ describe('Mock Subscriptions Resource', () => {
 		subscriptionId = sub.id;
 	});
 
+	it('creating the subscription for a customer updates the customer object', async () => {
+		const updatedCustomer = (await stripe.customers.retrieve(customer.id, {
+			expand: ['subscriptions'],
+		})) as Stripe.Customer;
+
+		expect(updatedCustomer.subscriptions?.data).toBeTruthy();
+		expect(updatedCustomer.subscriptions?.data.length).toBe(1);
+		expect(updatedCustomer.subscriptions?.data.at(0)?.id).toBe(
+			subscriptionId
+		);
+	});
+
 	it('retrieves subscriptions', async () => {
 		const sub = await stripe.subscriptions.retrieve(subscriptionId);
 		expect(sub).toBeTruthy();

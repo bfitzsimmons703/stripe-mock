@@ -42,11 +42,40 @@ export class MockSubscriptionSchedulesResource {
 			})),
 		};
 
+		await Promise.all([
+			this.db.push(
+				`${SUBSCRIPTION_SCHEDULES_DATA_PATH}/${schedule.id}`,
+				schedule
+			),
+			this.db.push(
+				`${SUBSCRIPTIONS_DATA_PATH}/${sub.id}`,
+				{ schedule: schedule.id },
+				false
+			),
+		]);
+
 		await this.db.push(
 			`${SUBSCRIPTION_SCHEDULES_DATA_PATH}/${schedule.id}`,
 			schedule
 		);
 
 		return { ...schedule };
+	}
+
+	async update(
+		id: string,
+		params: Stripe.SubscriptionUpdateParams
+	): Promise<Stripe.SubscriptionSchedule> {
+		const path = `${SUBSCRIPTION_SCHEDULES_DATA_PATH}/${id}`;
+
+		await this.db.push(
+			path,
+			{
+				...params,
+			},
+			false
+		);
+
+		return this.db.getData(path) as Promise<Stripe.SubscriptionSchedule>;
 	}
 }
