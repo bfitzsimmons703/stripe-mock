@@ -15,6 +15,7 @@
 	],
 	"author": "Brian Fitzsimmons",
 	"license": "ISC",
+	"private": false,
 	"scripts": {
 		"test": "jest",
 		"lint:types": "tsc --noemit",
@@ -28,7 +29,6 @@
 		"@types/jest": "^29.2.4",
 		"@types/luxon": "^3.2.0",
 		"@types/supertest": "^2.0.12",
-		"@types/uuid": "^9.0.0",
 		"@typescript-eslint/eslint-plugin": "^5.47.0",
 		"@typescript-eslint/parser": "^5.47.0",
 		"esbuild": "^0.16.7",
@@ -39,17 +39,12 @@
 		"eslint-plugin-prettier": "^4.2.1",
 		"eslint-plugin-tsdoc": "^0.2.17",
 		"jest": "^29.3.1",
+		"luxon": "^3.2.1",
 		"node-json-db": "^2.1.5",
+		"stripe": "^11.6.0",
 		"supertest": "^6.3.3",
 		"tsconfig-paths": "^4.1.2",
 		"tsx": "^3.12.2",
 		"typescript": "^4.9.4"
-	},
-	"dependencies": {
-		"lodash": "^4.17.21",
-		"luxon": "^3.2.1",
-		"nanoid": "^4.0.1",
-		"stripe": "^11.6.0",
-		"uuid": "^9.0.0"
 	}
 }

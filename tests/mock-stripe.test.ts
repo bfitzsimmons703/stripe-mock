@@ -2,7 +2,9 @@ import Stripe from 'stripe';
 import { faker } from '@faker-js/faker';
 
 describe('Stripe Mocks', () => {
-	const stripe = new Stripe('test_key');
+	const stripe = new Stripe('test_key', {
+		apiVersion: '2022-11-15',
+	});
 
 	describe('Customers API', () => {
 		const stripeCustomerEmail = faker.internet.email();
