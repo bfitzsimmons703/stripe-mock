@@ -66,5 +66,5 @@ dist
 #DS Store
 .DS_Store
 
-# Mocked test data
-__mocks__/__data__
+# Mocks
+__mocks__

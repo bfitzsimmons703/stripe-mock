@@ -1,12 +1,12 @@
 import { faker } from '@faker-js/faker';
 import { Config, JsonDB } from 'node-json-db';
 
-import { MockCustomersResource } from '__mocks__/stripe/customers';
-import { MockPaymentMethodsResource } from '__mocks__/stripe/payment-methods';
-import { MockPricesResource } from '__mocks__/stripe/prices';
-import { MockProductsResource } from '__mocks__/stripe/products';
-import { MockSubscriptionSchedulesResource } from '__mocks__/stripe/subscription-schedules';
-import { MockSubscriptionsResource } from '__mocks__/stripe/subscriptions';
+import { MockCustomersResource } from '@/customers';
+import { MockPaymentMethodsResource } from '@/payment-methods';
+import { MockPricesResource } from '@/prices';
+import { MockProductsResource } from '@/products';
+import { MockSubscriptionSchedulesResource } from '@/subscription-schedules';
+import { MockSubscriptionsResource } from '@/subscriptions';
 
 // Each test runner gets its own database file because they run in parallel, isolated environments
 const db = new JsonDB(

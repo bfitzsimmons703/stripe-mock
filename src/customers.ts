@@ -4,7 +4,7 @@ import { DateTime } from 'luxon';
 import Stripe from 'stripe';
 import { JsonDB } from 'node-json-db';
 
-import { stripeUUID } from '__mocks__/stripe/utils';
+import { stripeUUID } from '@/utils';
 
 export const CUSTOMERS_DATA_PATH = '/customers';
 

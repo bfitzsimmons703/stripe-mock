@@ -18,9 +18,7 @@
 	"private": false,
 	"scripts": {
 		"test": "jest",
-		"lint:types": "tsc --noemit",
-		"lint:errors": "eslint . --quiet",
-		"lint:all": "eslint ."
+		"build": "esbuild src/index.ts --bundle --platform=node --outfile=__mocks__/stripe.js"
 	},
 	"devDependencies": {
 		"@faker-js/faker": "^7.6.0",

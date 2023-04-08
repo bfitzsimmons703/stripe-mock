@@ -4,8 +4,8 @@ import Stripe from 'stripe';
 import { JsonDB } from 'node-json-db';
 import { DateTime } from 'luxon';
 
-import { CUSTOMERS_DATA_PATH } from '__mocks__/stripe/customers';
-import { stripeUUID } from '__mocks__/stripe/utils';
+import { CUSTOMERS_DATA_PATH } from '@/customers';
+import { stripeUUID } from '@/utils';
 
 export const PAYMENT_METHODS_DATA_PATH = '/paymentMethods';
 

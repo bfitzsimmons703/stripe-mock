@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 import { JsonDB } from 'node-json-db';
 import Stripe from 'stripe';
 
-import { stripeUUID } from '__mocks__/stripe/utils';
+import { stripeUUID } from '@/utils';
 
 export const SUBSCRIPTIONS_DATA_PATH = '/subscriptions';
 

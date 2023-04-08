@@ -3,7 +3,7 @@ import { JsonDB } from 'node-json-db';
 import Stripe from 'stripe';
 import { faker } from '@faker-js/faker';
 
-import { stripeUUID } from '__mocks__/stripe/utils';
+import { stripeUUID } from '@/utils';
 
 export const PRODUCTS_DATA_PATH = '/products';
 

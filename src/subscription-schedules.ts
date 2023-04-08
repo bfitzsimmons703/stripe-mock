@@ -2,8 +2,8 @@ import { DateTime } from 'luxon';
 import { JsonDB } from 'node-json-db';
 import Stripe from 'stripe';
 
-import { SUBSCRIPTIONS_DATA_PATH } from '__mocks__/stripe/subscriptions';
-import { stripeUUID } from '__mocks__/stripe/utils';
+import { SUBSCRIPTIONS_DATA_PATH } from '@/subscriptions';
+import { stripeUUID } from '@/utils';
 
 export const SUBSCRIPTION_SCHEDULES_DATA_PATH = '/subscriptionSchedules';
 
