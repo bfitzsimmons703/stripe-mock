@@ -5,6 +5,7 @@ import { MockCustomersResource } from '__mocks__/stripe/customers';
 import { MockPaymentMethodsResource } from '__mocks__/stripe/payment-methods';
 import { MockPricesResource } from '__mocks__/stripe/prices';
 import { MockProductsResource } from '__mocks__/stripe/products';
+import { MockSubscriptionSchedulesResource } from '__mocks__/stripe/subscription-schedules';
 import { MockSubscriptionsResource } from '__mocks__/stripe/subscriptions';
 
 // Each test runner gets its own database file because they run in parallel, isolated environments
@@ -23,4 +24,5 @@ export default class MockStripe {
 	products = new MockProductsResource(db);
 	prices = new MockPricesResource(db);
 	subscriptions = new MockSubscriptionsResource(db);
+	subscriptionSchedules = new MockSubscriptionSchedulesResource(db);
 }

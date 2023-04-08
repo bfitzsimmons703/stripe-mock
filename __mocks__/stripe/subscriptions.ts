@@ -21,6 +21,7 @@ export class MockSubscriptionsResource {
 			id: `sub_${stripeUUID()}`,
 			cancel_at_period_end: faker.datatype.boolean(),
 			created: DateTime.now().toUnixInteger(),
+			start_date: DateTime.now().toUnixInteger(),
 			collection_method: 'charge_automatically',
 			currency: 'usd',
 			current_period_start: DateTime.now().toUnixInteger(),
