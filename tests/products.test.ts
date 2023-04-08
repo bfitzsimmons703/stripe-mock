@@ -9,7 +9,7 @@ describe('Mock Products Resource', () => {
 	const productName = faker.commerce.productName();
 
 	let productId: string;
-	it('creates a product', async () => {
+	it('creates products', async () => {
 		const product = await stripe.products.create({
 			name: productName,
 		});
@@ -20,7 +20,7 @@ describe('Mock Products Resource', () => {
 		productId = product.id;
 	});
 
-	it('retrieves that product', async () => {
+	it('retrieves products', async () => {
 		const product = await stripe.products.retrieve(productId);
 		expect(product).toBeTruthy();
 		expect(product.id).toBe(productId);

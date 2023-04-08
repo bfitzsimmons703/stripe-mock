@@ -9,7 +9,7 @@ describe('Mock Customers Resource', () => {
 	const stripeCustomerEmail = faker.internet.email();
 	let stripeCustomerId: string;
 
-	it('creates a customer', async () => {
+	it('creates customers', async () => {
 		const customer = await stripe.customers.create({
 			email: stripeCustomerEmail,
 		});

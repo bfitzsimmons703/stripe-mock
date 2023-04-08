@@ -7,7 +7,7 @@ describe('Mock PaymentMethods Resource', () => {
 
 	let paymentMethodId: string | undefined;
 
-	it('can create a payment method', async () => {
+	it('creates payment methods', async () => {
 		const pm = await stripe.paymentMethods.create({
 			type: 'card',
 		});
@@ -18,12 +18,12 @@ describe('Mock PaymentMethods Resource', () => {
 		paymentMethodId = pm.id;
 	});
 
-	it('can retrieve a payment method', async () => {
+	it('retrieves payment methods', async () => {
 		const pm = await stripe.paymentMethods.retrieve(paymentMethodId!);
 		expect(pm).toBeTruthy();
 	});
 
-	it('can retrieve a pre-made payment method', async () => {
+	it('retrieve pre-made test payment methods', async () => {
 		const pm = await stripe.paymentMethods.retrieve('pm_card_visa');
 		expect(pm).toBeTruthy();
 		expect(pm.type).toBe('card');
@@ -42,7 +42,7 @@ describe('Mock PaymentMethods Resource', () => {
 		expect(ids.size).toBe(3);
 	});
 
-	it('can attach a payment method to a customer', async () => {
+	it('attaches a payment method to a customer', async () => {
 		const customer = await stripe.customers.create();
 		const paymentMethod = await stripe.paymentMethods.retrieve(
 			'pm_card_visa'

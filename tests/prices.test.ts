@@ -6,7 +6,7 @@ describe('Mock Prices Resource', () => {
 	});
 
 	let stripePriceId: string;
-	it('creates a price', async () => {
+	it('creates prices', async () => {
 		const nickname = 'myprice';
 
 		const price = await stripe.prices.create({
@@ -20,7 +20,7 @@ describe('Mock Prices Resource', () => {
 		stripePriceId = price.id;
 	});
 
-	it('retrieves that price', async () => {
+	it('retrieves prices', async () => {
 		const price = await stripe.prices.retrieve(stripePriceId);
 		expect(price).toBeTruthy();
 		expect(price.id).toBe(stripePriceId);
