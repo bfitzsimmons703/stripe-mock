@@ -2,18 +2,19 @@
 import { faker } from '@faker-js/faker';
 import { DateTime } from 'luxon';
 import Stripe from 'stripe';
-import { JsonDB } from 'node-json-db';
 
 import { stripeUUID } from '@/utils';
 import { SUBSCRIPTIONS_DATA_PATH } from '@/subscriptions';
+import { MockResource, Resource } from '@/resources';
+import { IDatabase } from '@/db';
 
 export const CUSTOMERS_DATA_PATH = '/customers';
 
-export class MockCustomersResource {
-	private db: JsonDB;
+export class MockCustomersResource extends MockResource {
+	resource: Resource = Resource.Customers;
 
-	constructor(db: JsonDB) {
-		this.db = db;
+	constructor(db: IDatabase) {
+		super(db);
 	}
 
 	async create(
@@ -33,7 +34,7 @@ export class MockCustomersResource {
 			...params,
 		};
 
-		await this.db.push(`${CUSTOMERS_DATA_PATH}/${customer.id}`, customer);
+		await this.db.set(`${this.resource}.${customer.id}`, customer);
 
 		return { ...customer };
 	}
@@ -42,8 +43,8 @@ export class MockCustomersResource {
 		params: Pick<Stripe.CustomerListParams, 'email'>
 	): Promise<Stripe.ApiList<Stripe.Customer>> {
 		const customers: Stripe.Customer[] =
-			(await this.db.filter(
-				CUSTOMERS_DATA_PATH,
+			(await this.db.findAll(
+				this.resource,
 				(entry: Partial<Stripe.Customer>) => {
 					return entry.email === params.email;
 				}
@@ -61,30 +62,31 @@ export class MockCustomersResource {
 		id: string,
 		params: Stripe.CustomerUpdateParams
 	): Promise<Stripe.Customer> {
-		const path = `${CUSTOMERS_DATA_PATH}/${id}`;
+		const path = `${this.resource}.${id}`;
 
-		await this.db.push(
-			path,
-			{
-				...params,
-			},
-			false // don't override, merge
-		);
+		const customer = await this.db.get(path);
 
-		return this.db.getData(path) as Promise<Stripe.Customer>;
+		const updatedCustomer = {
+			...customer,
+			...params,
+		} as Stripe.Customer;
+
+		await this.db.set(path, updatedCustomer);
+
+		return updatedCustomer;
 	}
 
 	async retrieve(
 		id: string,
 		params?: Stripe.CustomerRetrieveParams
 	): Promise<Stripe.Customer> {
-		const customer = (await this.db.getData(
-			`${CUSTOMERS_DATA_PATH}/${id}`
+		const customer = (await this.db.get(
+			`${this.resource}.${id}`
 		)) as Stripe.Customer;
 
 		if (params?.expand?.includes('subscriptions')) {
 			const subscriptions: Stripe.Subscription[] =
-				(await this.db.filter(
+				(await this.db.findAll(
 					SUBSCRIPTIONS_DATA_PATH,
 					(entry: Partial<Stripe.Subscription>) => {
 						return entry.customer === id;

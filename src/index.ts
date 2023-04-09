@@ -7,6 +7,7 @@ import { MockPricesResource } from '@/prices';
 import { MockProductsResource } from '@/products';
 import { MockSubscriptionSchedulesResource } from '@/subscription-schedules';
 import { MockSubscriptionsResource } from '@/subscriptions';
+import { DatabaseFactory, DatabaseType } from '@/db';
 
 // Each test runner gets its own database file because they run in parallel, isolated environments
 const db = new JsonDB(
@@ -18,8 +19,10 @@ const db = new JsonDB(
 	)
 );
 
+const _db = DatabaseFactory.build({ type: DatabaseType.InMemory });
+
 export default class MockStripe {
-	customers = new MockCustomersResource(db);
+	customers = new MockCustomersResource(_db);
 	paymentMethods = new MockPaymentMethodsResource(db);
 	products = new MockProductsResource(db);
 	prices = new MockPricesResource(db);
