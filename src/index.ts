@@ -5,10 +5,12 @@ import { MockProductsResource } from '@/products';
 import { MockSubscriptionSchedulesResource } from '@/subscription-schedules';
 import { MockSubscriptionsResource } from '@/subscriptions';
 import { DatabaseFactory, DatabaseType } from '@/db';
+import { MockCouponsResource } from '@/coupons';
 
 const db = DatabaseFactory.build({ type: DatabaseType.JsonFile });
 
 export default class MockStripe {
+	coupons = new MockCouponsResource(db);
 	customers = new MockCustomersResource(db);
 	paymentMethods = new MockPaymentMethodsResource(db);
 	products = new MockProductsResource(db);

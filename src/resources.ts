@@ -1,6 +1,7 @@
 import { IDatabase, PATH_SEPARATOR } from '@/db';
 
 export enum Resource {
+	Coupons = 'coupons',
 	Customers = 'customers',
 	PaymentMethods = 'paymentMethods',
 	Prices = 'prices',
