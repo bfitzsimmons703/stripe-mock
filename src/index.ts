@@ -6,6 +6,7 @@ import { MockSubscriptionSchedulesResource } from '@/subscription-schedules';
 import { MockSubscriptionsResource } from '@/subscriptions';
 import { DatabaseFactory, DatabaseType } from '@/db';
 import { MockCouponsResource } from '@/coupons';
+import { MockSetupIntentsResource } from '@/setup-intents';
 
 const db = DatabaseFactory.build({ type: DatabaseType.JsonFile });
 
@@ -15,6 +16,7 @@ export default class MockStripe {
 	paymentMethods = new MockPaymentMethodsResource(db);
 	products = new MockProductsResource(db);
 	prices = new MockPricesResource(db);
+	setupIntents = new MockSetupIntentsResource(db);
 	subscriptions = new MockSubscriptionsResource(db);
 	subscriptionSchedules = new MockSubscriptionSchedulesResource(db);
 }

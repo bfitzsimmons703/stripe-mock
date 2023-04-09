@@ -6,6 +6,7 @@ export enum Resource {
 	PaymentMethods = 'paymentMethods',
 	Prices = 'prices',
 	Products = 'products',
+	SetupIntents = 'setupIntents',
 	Subscriptions = 'subscriptions',
 	SubscriptionSchedules = 'subscriptionSchedules',
 }
