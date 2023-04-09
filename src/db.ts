@@ -2,12 +2,14 @@ import { faker } from '@faker-js/faker';
 import { Config, JsonDB } from 'node-json-db';
 import set from 'lodash/set';
 import get from 'lodash/get';
+import unset from 'lodash/unset';
 
 type FindCallback = (entry: any, index: number | string) => boolean;
 
 export interface IDatabase {
 	set(path: string, data: any): Promise<void>;
 	get(path: string): Promise<any>;
+	del(path: string): Promise<any>;
 	findAll(path: string, findCallback: FindCallback): Promise<any[]>;
 }
 
@@ -42,6 +44,12 @@ class JsonFileDatabase implements IDatabase {
 		return this.db.getData(path);
 	}
 
+	async del(path: string): Promise<any> {
+		const data = await this.get(path);
+		this.db.delete(path);
+		return data;
+	}
+
 	async findAll(path: string, findCallback: FindCallback): Promise<any[]> {
 		const results = await this.db.filter(path, findCallback);
 		return results || [];
@@ -58,6 +66,12 @@ class InMemoryDatabase implements IDatabase {
 
 	get(path: string): Promise<any> {
 		return Promise.resolve(get(this.map, path));
+	}
+
+	async del(path: string): Promise<any> {
+		const data = await this.get(path);
+		unset(this.map, path);
+		return data;
 	}
 
 	findAll(path: string, findCallback: FindCallback): Promise<any[]> {
