@@ -9,6 +9,7 @@ export enum Resource {
 	SetupIntents = 'setupIntents',
 	Subscriptions = 'subscriptions',
 	SubscriptionSchedules = 'subscriptionSchedules',
+	Webhooks = 'webhooks',
 }
 
 export abstract class MockResource {

@@ -7,6 +7,7 @@ import { MockSubscriptionsResource } from '@/subscriptions';
 import { DatabaseFactory, DatabaseType } from '@/db';
 import { MockCouponsResource } from '@/coupons';
 import { MockSetupIntentsResource } from '@/setup-intents';
+import { MockWebhooksResource } from '@/webhooks';
 
 const db = DatabaseFactory.build({ type: DatabaseType.JsonFile });
 
@@ -19,4 +20,5 @@ export default class MockStripe {
 	setupIntents = new MockSetupIntentsResource(db);
 	subscriptions = new MockSubscriptionsResource(db);
 	subscriptionSchedules = new MockSubscriptionSchedulesResource(db);
+	webhooks = new MockWebhooksResource(db);
 }
