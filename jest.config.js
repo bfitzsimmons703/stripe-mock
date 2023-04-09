@@ -31,5 +31,6 @@ module.exports = {
 		'<rootDir>/node_modules/',
 		'<rootDir>/.esbuild/',
 	],
+	setupFiles: ['<rootDir>/tests/setup-test.ts'], // Executed for each test runner
 	globalSetup: '<rootDir>/tests/global-setup.ts', // Executed once before all tests
 };

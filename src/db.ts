@@ -65,7 +65,12 @@ class InMemoryDatabase implements IDatabase {
 	}
 
 	get(path: string): Promise<any> {
-		return Promise.resolve(get(this.map, path));
+		const data = get(this.map, path);
+		if (data === undefined) {
+			throw new Error(`Data at path ${path} does not exist`);
+		}
+
+		return Promise.resolve(data);
 	}
 
 	async del(path: string): Promise<any> {
