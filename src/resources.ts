@@ -1,4 +1,4 @@
-import { IDatabase } from '@/db';
+import { IDatabase, PATH_SEPARATOR } from '@/db';
 
 export enum Resource {
 	Customers = 'customers',
@@ -16,5 +16,9 @@ export abstract class MockResource {
 
 	constructor(db: IDatabase) {
 		this.db = db;
+	}
+
+	buildPath(parts: string[]): string {
+		return parts.join(PATH_SEPARATOR);
 	}
 }

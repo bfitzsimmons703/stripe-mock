@@ -1,13 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import Stripe from 'stripe';
-import { JsonDB } from 'node-json-db';
 import { DateTime } from 'luxon';
 
-import { CUSTOMERS_DATA_PATH } from '@/customers';
 import { stripeUUID } from '@/utils';
-
-export const PAYMENT_METHODS_DATA_PATH = '/paymentMethods';
+import { MockResource, Resource } from '@/resources';
+import { IDatabase } from '@/db';
 
 const TEST_CARDS: Record<string, Stripe.PaymentMethod> = {
 	pm_card_visa: {
@@ -36,11 +34,11 @@ const TEST_CARDS: Record<string, Stripe.PaymentMethod> = {
 	},
 };
 
-export class MockPaymentMethodsResource {
-	private db: JsonDB;
+export class MockPaymentMethodsResource extends MockResource {
+	resource: Resource = Resource.PaymentMethods;
 
-	constructor(db: JsonDB) {
-		this.db = db;
+	constructor(db: IDatabase) {
+		super(db);
 	}
 
 	async create(
@@ -54,10 +52,8 @@ export class MockPaymentMethodsResource {
 			...params,
 		};
 
-		await this.db.push(
-			`${PAYMENT_METHODS_DATA_PATH}/${paymentMethod.id}`,
-			paymentMethod
-		);
+		const path = this.buildPath([this.resource, paymentMethod.id]);
+		await this.db.set(path, paymentMethod);
 
 		return { ...paymentMethod };
 	}
@@ -78,18 +74,24 @@ export class MockPaymentMethodsResource {
 			customer: params.customer,
 		};
 
-		const cus = (await this.db.getData(
-			`${CUSTOMERS_DATA_PATH}/${params.customer}`
-		)) as Stripe.Customer;
+		const paymentMethodPath = this.buildPath([this.resource, id]);
 
-		cus.default_source = paymentMethod.id;
+		const customerPath = this.buildPath([
+			Resource.Customers,
+			params.customer,
+		]);
 
-		const sources: Stripe.ApiList<Stripe.CustomerSource> = cus.sources || {
-			object: 'list',
-			has_more: false,
-			url: '',
-			data: [],
-		};
+		const customer = (await this.db.get(customerPath)) as Stripe.Customer;
+
+		customer.default_source = paymentMethod.id;
+
+		const sources: Stripe.ApiList<Stripe.CustomerSource> =
+			customer.sources || {
+				object: 'list',
+				has_more: false,
+				url: '',
+				data: [],
+			};
 
 		const alreadyHasPaymentMethod = sources.data.find(
 			(source) => source.id === paymentMethod.id
@@ -100,15 +102,12 @@ export class MockPaymentMethodsResource {
 			sources.data.push(paymentMethod);
 		}
 
-		cus.sources = sources;
+		customer.sources = sources;
 
-		await this.db.push(
-			`${CUSTOMERS_DATA_PATH}/${params.customer}`,
-			cus,
-			true
-		);
-
-		await this.db.push(`${PAYMENT_METHODS_DATA_PATH}/${id}`, paymentMethod);
+		await Promise.all([
+			this.db.set(customerPath, customer),
+			this.db.set(paymentMethodPath, paymentMethod),
+		]);
 
 		return paymentMethod;
 	}
@@ -123,8 +122,7 @@ export class MockPaymentMethodsResource {
 			} as Stripe.PaymentMethodCreateParams);
 		}
 
-		return this.db.getData(
-			`${PAYMENT_METHODS_DATA_PATH}/${id}`
-		) as Promise<Stripe.PaymentMethod>;
+		const path = this.buildPath([this.resource, id]);
+		return this.db.get(path) as Promise<Stripe.PaymentMethod>;
 	}
 }

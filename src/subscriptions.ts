@@ -1,24 +1,22 @@
 import { faker } from '@faker-js/faker';
 import { DateTime } from 'luxon';
-import { JsonDB } from 'node-json-db';
 import Stripe from 'stripe';
 
 import { stripeUUID } from '@/utils';
-import { SUBSCRIPTION_SCHEDULES_DATA_PATH } from '@/subscription-schedules';
+import { MockResource, Resource } from '@/resources';
+import { IDatabase } from '@/db';
 
-export const SUBSCRIPTIONS_DATA_PATH = '/subscriptions';
+export class MockSubscriptionsResource extends MockResource {
+	resource: Resource = Resource.Subscriptions;
 
-export class MockSubscriptionsResource {
-	private db: JsonDB;
-
-	constructor(db: JsonDB) {
-		this.db = db;
+	constructor(db: IDatabase) {
+		super(db);
 	}
 
 	async create(
 		params: Stripe.SubscriptionCreateParams
 	): Promise<Stripe.Subscription> {
-		const sub: Stripe.Subscription = {
+		const subscription: Stripe.Subscription = {
 			id: `sub_${stripeUUID()}`,
 			cancel_at_period_end: faker.datatype.boolean(),
 			created: DateTime.now().toUnixInteger(),
@@ -41,40 +39,46 @@ export class MockSubscriptionsResource {
 			...params,
 		};
 
-		await this.db.push(`${SUBSCRIPTIONS_DATA_PATH}/${sub.id}`, sub);
+		const path = this.buildPath([this.resource, subscription.id]);
+		await this.db.set(path, subscription);
 
-		return { ...sub };
+		return { ...subscription };
 	}
 
 	async update(
 		id: string,
 		params: Stripe.SubscriptionUpdateParams
 	): Promise<Stripe.Subscription> {
-		const path = `${SUBSCRIPTIONS_DATA_PATH}/${id}`;
+		const path = this.buildPath([this.resource, id]);
 
-		await this.db.push(
-			path,
-			{
-				...params,
-			},
-			false // don't override, merge
-		);
+		const subscription = (await this.db.get(path)) as Stripe.Subscription;
 
-		return this.db.getData(path) as Promise<Stripe.Subscription>;
+		const updatedSubscription = {
+			...subscription,
+			...params,
+		} as Stripe.Subscription;
+
+		await this.db.set(path, updatedSubscription);
+
+		return updatedSubscription;
 	}
 
 	async retrieve(
 		id: string,
 		params?: Stripe.SubscriptionRetrieveParams
 	): Promise<Stripe.Subscription> {
-		const subscription = (await this.db.getData(
-			`${SUBSCRIPTIONS_DATA_PATH}/${id}`
+		const subscriptionPath = this.buildPath([this.resource, id]);
+		const subscription = (await this.db.get(
+			subscriptionPath
 		)) as Stripe.Subscription;
 
 		if (params?.expand?.includes('schedule') && subscription.schedule) {
-			const schedule = await this.db.getData(
-				`${SUBSCRIPTION_SCHEDULES_DATA_PATH}/${subscription.schedule}`
-			);
+			const schedulePath = this.buildPath([
+				Resource.SubscriptionSchedules,
+				subscription.schedule as string,
+			]);
+
+			const schedule = await this.db.get(schedulePath);
 
 			subscription.schedule = schedule;
 		}

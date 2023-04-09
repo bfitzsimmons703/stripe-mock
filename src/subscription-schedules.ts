@@ -1,17 +1,15 @@
 import { DateTime } from 'luxon';
-import { JsonDB } from 'node-json-db';
 import Stripe from 'stripe';
 
-import { SUBSCRIPTIONS_DATA_PATH } from '@/subscriptions';
 import { stripeUUID } from '@/utils';
+import { MockResource, Resource } from '@/resources';
+import { IDatabase } from '@/db';
 
-export const SUBSCRIPTION_SCHEDULES_DATA_PATH = '/subscriptionSchedules';
+export class MockSubscriptionSchedulesResource extends MockResource {
+	resource: Resource = Resource.SubscriptionSchedules;
 
-export class MockSubscriptionSchedulesResource {
-	private db: JsonDB;
-
-	constructor(db: JsonDB) {
-		this.db = db;
+	constructor(db: IDatabase) {
+		super(db);
 	}
 
 	async create(
@@ -20,21 +18,26 @@ export class MockSubscriptionSchedulesResource {
 			'from_subscription'
 		>
 	): Promise<Stripe.SubscriptionSchedule> {
-		const sub = (await this.db.getData(
-			`${SUBSCRIPTIONS_DATA_PATH}/${params.from_subscription}`
+		const subscriptionPath = this.buildPath([
+			Resource.Subscriptions,
+			params.from_subscription!,
+		]);
+
+		const subscription = (await this.db.get(
+			subscriptionPath
 		)) as Stripe.Subscription;
 
-		const subscriptionItems = sub.items.data;
+		const subscriptionItems = subscription.items.data;
 
 		const schedule: Stripe.SubscriptionSchedule = {
 			id: `sub_sched_${stripeUUID()}`,
 			created: DateTime.now().toUnixInteger(),
-			subscription: sub.id,
-			customer: sub.customer,
+			subscription: subscription.id,
+			customer: subscription.customer,
 			end_behavior: 'release',
 			current_phase: {
-				start_date: sub.current_period_start,
-				end_date: sub.current_period_end,
+				start_date: subscription.current_period_start,
+				end_date: subscription.current_period_end,
 			},
 			//@ts-ignore
 			phases: subscriptionItems.map((item) => ({
@@ -42,22 +45,18 @@ export class MockSubscriptionSchedulesResource {
 			})),
 		};
 
+		subscription.schedule = schedule.id;
+
+		const schedulePath = this.buildPath([this.resource, schedule.id]);
 		await Promise.all([
-			this.db.push(
-				`${SUBSCRIPTION_SCHEDULES_DATA_PATH}/${schedule.id}`,
-				schedule
-			),
-			this.db.push(
-				`${SUBSCRIPTIONS_DATA_PATH}/${sub.id}`,
-				{ schedule: schedule.id },
-				false
+			this.db.set(schedulePath, schedule),
+			this.db.set(
+				this.buildPath([Resource.Subscriptions, subscription.id]),
+				subscription
 			),
 		]);
 
-		await this.db.push(
-			`${SUBSCRIPTION_SCHEDULES_DATA_PATH}/${schedule.id}`,
-			schedule
-		);
+		await this.db.set(schedulePath, schedule);
 
 		return { ...schedule };
 	}
@@ -66,16 +65,19 @@ export class MockSubscriptionSchedulesResource {
 		id: string,
 		params: Stripe.SubscriptionUpdateParams
 	): Promise<Stripe.SubscriptionSchedule> {
-		const path = `${SUBSCRIPTION_SCHEDULES_DATA_PATH}/${id}`;
+		const path = this.buildPath([this.resource, id]);
 
-		await this.db.push(
-			path,
-			{
-				...params,
-			},
-			false
-		);
+		const schedule = (await this.db.get(
+			path
+		)) as Stripe.SubscriptionSchedule;
 
-		return this.db.getData(path) as Promise<Stripe.SubscriptionSchedule>;
+		const updatedSchedule = {
+			...schedule,
+			...params,
+		} as Stripe.SubscriptionSchedule;
+
+		await this.db.set(path, updatedSchedule);
+
+		return updatedSchedule;
 	}
 }

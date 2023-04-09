@@ -1,17 +1,16 @@
 import { DateTime } from 'luxon';
-import { JsonDB } from 'node-json-db';
 import Stripe from 'stripe';
 import { faker } from '@faker-js/faker';
 
 import { stripeUUID } from '@/utils';
+import { MockResource, Resource } from '@/resources';
+import { IDatabase } from '@/db';
 
-export const PRODUCTS_DATA_PATH = '/products';
+export class MockProductsResource extends MockResource {
+	resource: Resource = Resource.Products;
 
-export class MockProductsResource {
-	private db: JsonDB;
-
-	constructor(db: JsonDB) {
-		this.db = db;
+	constructor(db: IDatabase) {
+		super(db);
 	}
 
 	async create(params: Stripe.ProductCreateParams): Promise<Stripe.Product> {
@@ -23,14 +22,14 @@ export class MockProductsResource {
 			...params,
 		} as Stripe.Product;
 
-		await this.db.push(`${PRODUCTS_DATA_PATH}/${product.id}`, product);
+		const path = this.buildPath([this.resource, product.id]);
+		await this.db.set(path, product);
 
 		return { ...product };
 	}
 
 	async retrieve(id: string): Promise<Stripe.Product> {
-		return this.db.getData(
-			`${PRODUCTS_DATA_PATH}/${id}`
-		) as Promise<Stripe.Product>;
+		const path = this.buildPath([this.resource, id]);
+		return this.db.get(path) as Promise<Stripe.Product>;
 	}
 }

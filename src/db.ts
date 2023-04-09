@@ -16,7 +16,7 @@ export enum DatabaseType {
 	InMemory,
 }
 
-const PATH_SEPARATOR = '.';
+export const PATH_SEPARATOR = '.';
 
 class JsonFileDatabase implements IDatabase {
 	private db: JsonDB;

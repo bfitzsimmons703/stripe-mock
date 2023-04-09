@@ -4,11 +4,8 @@ import { DateTime } from 'luxon';
 import Stripe from 'stripe';
 
 import { stripeUUID } from '@/utils';
-import { SUBSCRIPTIONS_DATA_PATH } from '@/subscriptions';
 import { MockResource, Resource } from '@/resources';
 import { IDatabase } from '@/db';
-
-export const CUSTOMERS_DATA_PATH = '/customers';
 
 export class MockCustomersResource extends MockResource {
 	resource: Resource = Resource.Customers;
@@ -34,7 +31,9 @@ export class MockCustomersResource extends MockResource {
 			...params,
 		};
 
-		await this.db.set(`${this.resource}.${customer.id}`, customer);
+		const path = this.buildPath([this.resource, customer.id]);
+
+		await this.db.set(path, customer);
 
 		return { ...customer };
 	}
@@ -62,7 +61,7 @@ export class MockCustomersResource extends MockResource {
 		id: string,
 		params: Stripe.CustomerUpdateParams
 	): Promise<Stripe.Customer> {
-		const path = `${this.resource}.${id}`;
+		const path = this.buildPath([this.resource, id]);
 
 		const customer = await this.db.get(path);
 
@@ -80,14 +79,13 @@ export class MockCustomersResource extends MockResource {
 		id: string,
 		params?: Stripe.CustomerRetrieveParams
 	): Promise<Stripe.Customer> {
-		const customer = (await this.db.get(
-			`${this.resource}.${id}`
-		)) as Stripe.Customer;
+		const path = this.buildPath([this.resource, id]);
+		const customer = (await this.db.get(path)) as Stripe.Customer;
 
 		if (params?.expand?.includes('subscriptions')) {
 			const subscriptions: Stripe.Subscription[] =
 				(await this.db.findAll(
-					SUBSCRIPTIONS_DATA_PATH,
+					Resource.Subscriptions,
 					(entry: Partial<Stripe.Subscription>) => {
 						return entry.customer === id;
 					}
