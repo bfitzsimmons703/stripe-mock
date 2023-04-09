@@ -19,6 +19,7 @@ export class MockSetupIntentsResource extends MockResource {
 			id: `seti_${stripeUUID()}`,
 			created: DateTime.now().toUnixInteger(),
 			status: 'processing',
+			client_secret: stripeUUID(),
 
 			...params,
 		} as Stripe.SetupIntent;

@@ -20,6 +20,7 @@ describe('Mock SetupIntents Resource', () => {
 		expect(setupIntent.id).toBeTruthy();
 		expect(setupIntent.customer).toBe(customer.id);
 		expect(setupIntent.status).toBe('processing');
+		expect(setupIntent.client_secret).toBeTruthy();
 
 		setupIntentId = setupIntent.id;
 	});
