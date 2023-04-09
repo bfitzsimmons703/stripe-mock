@@ -85,4 +85,9 @@ export class MockSubscriptionsResource extends MockResource {
 
 		return { ...subscription };
 	}
+
+	async del(id: string): Promise<Stripe.Subscription> {
+		const path = this.buildPath([this.resource, id]);
+		return this.db.del(path);
+	}
 }

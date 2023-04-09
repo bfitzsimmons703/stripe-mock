@@ -52,4 +52,20 @@ describe('Mock Subscriptions Resource', () => {
 			'off'
 		);
 	});
+
+	it('deletes subscriptions', async () => {
+		let subscription = await stripe.subscriptions.create({
+			customer: customer.id,
+		});
+		expect(subscription).toBeTruthy();
+
+		subscription = await stripe.subscriptions.retrieve(subscription.id);
+		expect(subscription).toBeTruthy();
+
+		await stripe.subscriptions.del(subscription.id);
+
+		await expect(
+			stripe.subscriptions.retrieve(subscription.id)
+		).rejects.toThrow();
+	});
 });
