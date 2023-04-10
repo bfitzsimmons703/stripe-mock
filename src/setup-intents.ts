@@ -15,6 +15,12 @@ export class MockSetupIntentsResource extends MockResource {
 	async create(
 		params: Stripe.SetupIntentCreateParams
 	): Promise<Stripe.SetupIntent> {
+		if (params.customer) {
+			// check that customer exists, will throw error if not
+			const path = this.buildPath([Resource.Customers, params.customer]);
+			await this.db.get(path);
+		}
+
 		const setupIntent: Stripe.SetupIntent = {
 			id: `seti_${stripeUUID()}`,
 			created: DateTime.now().toUnixInteger(),
