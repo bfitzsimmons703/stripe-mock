@@ -1,4 +1,4 @@
-import { DatabaseFactory, DatabaseType } from '@/db';
+import { DatabaseSingleton, DatabaseType } from '@/db';
 import { MockResource } from '@/resources';
 
 import { MockCustomersResource } from '@/customers';
@@ -16,7 +16,7 @@ interface MockStripeConfig {
 }
 
 export default class MockStripe {
-	private static databaseType: DatabaseType;
+	private static databaseType: DatabaseType = DatabaseType.InMemory;
 
 	coupons: MockResource;
 	customers: MockResource;
@@ -29,7 +29,7 @@ export default class MockStripe {
 	webhooks: MockResource;
 
 	constructor() {
-		const db = DatabaseFactory.build({ type: MockStripe.databaseType });
+		const db = DatabaseSingleton.getInstance(MockStripe.databaseType);
 
 		this.coupons = new MockCouponsResource(db);
 		this.customers = new MockCustomersResource(db);

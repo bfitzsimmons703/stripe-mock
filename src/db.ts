@@ -67,7 +67,7 @@ class InMemoryDatabase implements IDatabase {
 	get(path: string): Promise<any> {
 		const data = get(this.map, path);
 		if (data === undefined) {
-			throw new Error(`Data at path ${path} does not exist`);
+			throw new Error(`Data at path ${path} does not exist.`);
 		}
 
 		return Promise.resolve(data);
@@ -90,19 +90,25 @@ class InMemoryDatabase implements IDatabase {
 	}
 }
 
-interface DatabaseFactoryConfig {
-	type: DatabaseType;
-}
+export class DatabaseSingleton {
+	private static instance: IDatabase | null = null;
 
-export class DatabaseFactory {
-	static build(config: DatabaseFactoryConfig): IDatabase {
-		switch (config.type) {
-			case DatabaseType.JsonFile:
-				return new JsonFileDatabase();
-			case DatabaseType.InMemory:
-				return new InMemoryDatabase();
-			default:
-				throw new Error('Unknown Mock Stripe DatabaseType');
+	private constructor() {}
+
+	static getInstance(type: DatabaseType): IDatabase {
+		if (!DatabaseSingleton.instance) {
+			switch (type) {
+				case DatabaseType.InMemory:
+					DatabaseSingleton.instance = new InMemoryDatabase();
+					break;
+				case DatabaseType.JsonFile:
+					DatabaseSingleton.instance = new JsonFileDatabase();
+					break;
+				default:
+					throw new Error(`Unknown database type: ${type}.`);
+			}
 		}
+
+		return DatabaseSingleton.instance;
 	}
 }
